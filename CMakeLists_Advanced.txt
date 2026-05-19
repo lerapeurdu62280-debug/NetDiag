@@ -1,0 +1,91 @@
+cmake_minimum_required(VERSION 3.10)
+project(NetDiag_Pro)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+# Find Qt5
+find_package(Qt5 COMPONENTS Core Gui Widgets Charts REQUIRED)
+
+# Windows specific settings
+if(WIN32)
+    add_compile_options(/W4)
+else()
+    add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+# CLI Source files
+set(CLI_SOURCES
+    src/main_cli.cpp
+    src/Utils.cpp
+    src/NetworkInfo.cpp
+    src/PingTest.cpp
+    src/DNSTest.cpp
+    src/TracerouteTest.cpp
+    src/PortScanTest.cpp
+    src/SpeedTest.cpp
+    src/MonitoringEngine.cpp
+    src/DataExporter.cpp
+    src/PacketCapture.cpp
+    src/PerformanceAnalyzer.cpp
+)
+
+# GUI Source files
+set(GUI_SOURCES
+    gui/main_gui.cpp
+    gui/MainWindow.cpp
+    src/Utils.cpp
+    src/NetworkInfo.cpp
+    src/PingTest.cpp
+    src/DNSTest.cpp
+    src/TracerouteTest.cpp
+    src/PortScanTest.cpp
+    src/SpeedTest.cpp
+    src/MonitoringEngine.cpp
+    src/DataExporter.cpp
+    src/PacketCapture.cpp
+    src/PerformanceAnalyzer.cpp
+)
+
+# Create CLI executable
+add_executable(NetDiag_CLI ${CLI_SOURCES})
+if(WIN32)
+    target_link_libraries(NetDiag_CLI
+        ws2_32
+        iphlpapi
+        icmpapi
+        wininet
+        setupapi
+        psapi
+    )
+endif()
+
+# Create GUI executable
+add_executable(NetDiag_GUI ${GUI_SOURCES})
+target_link_libraries(NetDiag_GUI
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Widgets
+    Qt5::Charts
+)
+if(WIN32)
+    target_link_libraries(NetDiag_GUI
+        ws2_32
+        iphlpapi
+        icmpapi
+        wininet
+        setupapi
+        psapi
+    )
+endif()
+
+# Set output directories
+set_target_properties(NetDiag_CLI PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+set_target_properties(NetDiag_GUI PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
